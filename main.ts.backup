@@ -1,0 +1,49 @@
+import { Plugin, WorkspaceLeaf } from 'obsidian';
+import { PropertiesGuiView } from './PropertiesFilterView';
+
+const VIEW_TYPE_PROPERTIESGUI = 'propertiesfilterelekis';
+
+// mettre une option pour savoir si on l'integre dans le filetree direct (un, ou les deux)'
+
+export default class PropertiesGuiPlugin extends Plugin {
+  async onload() {
+    console.log("PropertiesGui plugin loaded");
+
+    // Enregistrer la vue pour le plugin
+    this.registerView(
+      VIEW_TYPE_PROPERTIESGUI,
+      (leaf: WorkspaceLeaf) => new PropertiesGuiView(leaf)
+    );
+
+    // Ajouter un bouton dans le ribbon
+    this.addRibbonIcon('filter', 'PropertiesFilter', async () => {
+      // Ouvrir la vue dans le panneau de gauche
+      await this.activateView();
+    });
+  }
+
+  async activateView() {
+    const { workspace } = this.app;
+
+    let leaf: WorkspaceLeaf | null = null;
+    const leaves = workspace.getLeavesOfType(VIEW_TYPE_PROPERTIESGUI);
+
+    if (leaves.length > 0) {
+      leaf = leaves[0];
+    } else {
+      leaf = workspace.getLeftLeaf(false);
+      await leaf.setViewState({
+        type: VIEW_TYPE_PROPERTIESGUI,
+        active: true,
+        icon: "filter", 
+      });
+    }
+
+    workspace.revealLeaf(leaf);
+  }
+
+  onunload() {
+    console.log("PropertiesFilter plugin unloaded");
+  }
+}
+
