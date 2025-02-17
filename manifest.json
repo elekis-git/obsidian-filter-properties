@@ -1,7 +1,7 @@
 {
 	"id": "properties-filter-elekis-plugin",
 	"name": "Properties Filter",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"minAppVersion": "0.15.0",
 	"description": "Filter based on properties",
 	"author": "Obsidian",

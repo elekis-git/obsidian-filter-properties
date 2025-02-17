@@ -9,12 +9,12 @@ export default class PropertiesFilterPlugin extends Plugin {
 
   
   async onload() {
-    console.log("PropertiesFilter plugin loaded");
+    console.log("PropertiesFilter 2plugin loaded");
 
       if (PropertiesFilterPlugin.instance) {
       console.warn("PropertiesFilter is already loaded!");
       return; 
-    }
+    }  
     PropertiesFilterPlugin.instance = this;
 
     // Enregistrer la vue pour le plugin
@@ -23,14 +23,15 @@ export default class PropertiesFilterPlugin extends Plugin {
       (leaf: WorkspaceLeaf) => new PropertiesFilterView(leaf)
     );
 
-    console.log("Vue enregistrée :", PropertiesFilterView.VIEW_TYPE_PROPERTIES_FILTER);
+    console.log("Vue enregistrée 2:", PropertiesFilterView.VIEW_TYPE_PROPERTIES_FILTER);
+     await this.activateView();
 
-
-    // Ajouter un bouton dans le ribbon
+   /* // Ajouter un bouton dans le ribbon
     this.addRibbonIcon('filter', 'PropertiesFilter', async () => {
       // Ouvrir la vue dans le panneau de gauche
       await this.activateView();
-    });
+    }); 
+*/ 
   }
 
 
