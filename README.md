@@ -1,6 +1,9 @@
 # obsidian-filter-properties
 Obsidian plugin that help you filtering based on properties and/or value
 
+![alt text](readmestuff/1.png)
+![alt text](readmestuff/2.png)
+![alt text](readmestuff/3.png)
 
 # how to use
 
