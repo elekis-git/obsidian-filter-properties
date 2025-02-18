@@ -1,6 +1,15 @@
 # obsidian-filter-properties
-Obsidian plugin for properties
+Obsidian plugin that help you filtering based on properties and/or value
 
+
+# how to use
+
+once activate, plugin will create a sidebar that show all files. 
+* Choose a properties
+* choose a value (or all)
+* click on + button
+
+reset button is for ... resetting (no shit sherlock)
 
 # install
 
