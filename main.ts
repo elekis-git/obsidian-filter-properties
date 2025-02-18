@@ -6,7 +6,7 @@ import { PropertiesFilterView } from './PropertiesFilterView';
 export default class PropertiesFilterPlugin extends Plugin {
   
   private static instance: PropertiesFilterPlugin | null = null;
-
+ 
   
   async onload() {
     console.log("PropertiesFilter 2plugin loaded");
