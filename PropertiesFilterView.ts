@@ -37,13 +37,13 @@ export class PropertiesFilterView extends ItemView {
     const filterdiv = window1.createEl('div', { cls: 'properties-filter-elekis-filtered' });
     const buttonContainer = buttondiv.createDiv({ cls: 'properties-filter-elekis-button-container' });
 
-    const newSelectElement      = buttonContainer.createEl('select', { cls: 'properties-filter-elekis-select' });
-    const newValueSelectElement = buttonContainer.createEl('select', { cls: 'properties-filter-elekis-select' });
+    const selectElement         = buttonContainer.createEl('select', { cls: 'properties-filter-elekis-select' });
+    const valueElement          = buttonContainer.createEl('select', { cls: 'properties-filter-elekis-select' });
     const addFilterButton       = buttonContainer.createEl('button', { text: '+', cls: 'properties-filter-elekis-button-add' });
     const addResetButton        = buttonContainer.createEl('button', { text: 'R', cls: 'properties-filter-elekis-button-reset' });
 
-    newSelectElement.createEl('option', { text: 'all', value: 'all' });
-    newValueSelectElement.createEl('option', { text: 'all', value: 'all' });
+    selectElement.createEl('option', { text: 'all', value: 'all' });
+    valueElement.createEl('option', { text: 'all', value: 'all' });
 
     let userFilter = [{ key: 'all', value: 'all'}]  //les filtres actifs.
     let fileFiltered: TFile[] = []  // visible dans windows 2
@@ -54,7 +54,7 @@ export class PropertiesFilterView extends ItemView {
 
     const getmetadataFile = (files: TFile[]) => {   
         const allKeys: string[] = ['all'];
-        newSelectElement.empty()
+        selectElement.empty()
         // Récupérer toutes les propriétés et valeurs dans les fichiers
         files.forEach((file: TFile) => {
             const metadata = this.app.metadataCache.getFileCache(file);
@@ -69,27 +69,35 @@ export class PropertiesFilterView extends ItemView {
         });
         const sortedKeys = ['all', ...allKeys.slice(1).sort((a, b) => a.localeCompare(b))];
         sortedKeys.forEach((key) => {
-            newSelectElement.createEl('option', { text: String(key), value: String(key) });
+            selectElement.createEl('option', { text: String(key), value: String(key) });
       });
     };
 
-    getmetadataFile(fileFiltered);
-
       // Mettre à jour les valeurs quand une nouvelle propriété est choisie
       const updateNewValueList = (selectedKey: string) => {
-        newValueSelectElement.empty();
-        newValueSelectElement.createEl('option', { text: 'all', value: 'all' });
 
-        if (selectedKey && keyValuesMap[selectedKey]) {
-          keyValuesMap[selectedKey].forEach((value) => {
-            newValueSelectElement.createEl('option', { text: value, value: value });
-          });
+        valueElement.empty();
+        valueElement.createEl('option', { text: 'all', value: 'all' });
+        
+        if (selectedKey =='all'){
+                    const allValues = Object.values(keyValuesMap).flat().sort();
+                    allValues.forEach( (value) => {  valueElement.createEl('option', { text: value, value: value })}); 
+            }else{        
+            if (selectedKey && keyValuesMap[selectedKey]) {
+              keyValuesMap[selectedKey].forEach((value) => {
+                valueElement.createEl('option', { text: value, value: value });
+              });
+            }
         }
-      };
+    }; 
+
+    getmetadataFile(fileFiltered);
+    updateNewValueList('all');
+
 
     addFilterButton.addEventListener('click', () => {
-        const properText = newSelectElement.options[newSelectElement.selectedIndex].text;
-        const valueText = newValueSelectElement.options[newValueSelectElement.selectedIndex].text;
+        const properText = selectElement.options[selectElement.selectedIndex].text;
+        const valueText = valueElement.options[valueElement.selectedIndex].text;
         const filterdivd        = filterdiv.createEl('div', {cls: 'properties-filter-elekis-divprop' });
         const filterdivt        = filterdivd.createEl('h5', { text: properText+":"+valueText }); 
         const filterdivb        = filterdivd.createEl('button', { text: '-', cls: 'properties-filter-elekis-divprop-button' });
@@ -109,7 +117,7 @@ export class PropertiesFilterView extends ItemView {
                 });
          userFilter.push({ key: properText, value: valueText})
          updateFileList(userFilter);        
-         newSelectElement.selectedIndex = 0; 
+         selectElement.selectedIndex = 0; 
          fileMetadata = {}; 
          keyValuesMap = {};
          getmetadataFile(fileFiltered); 
@@ -127,18 +135,18 @@ export class PropertiesFilterView extends ItemView {
         fileMetadata = {}; 
         keyValuesMap = {};
         updateFileList(userFilter);
-        updateNewValueList('all');
         getmetadataFile(fileFiltered);
+        updateNewValueList('all');
         });
 
   // Event listeners pour les nouvelles lignes de filtres
-      newSelectElement.addEventListener('change', (event) => {
+      selectElement.addEventListener('change', (event) => {
         const selectedKey = (event.target as HTMLSelectElement).value;
         updateNewValueList(selectedKey);
         updateAddFilterButtonState();
       });
  
-     newValueSelectElement.addEventListener('change', () => {
+     valueElement.addEventListener('change', () => {
         updateAddFilterButtonState(); // Met à jour l'état du bouton
         });
 
@@ -157,12 +165,17 @@ export class PropertiesFilterView extends ItemView {
                 const metadata = fileMetadata[file.path];
 
                 return filters.every(filter => {
-                    if (filter.key === 'all') return true; // Si "all", ne pas filtrer
+                    if (filter.key === 'all' && filter.value == 'all') return true; // Si "all", ne pas filtrer
                     if (typeof metadata === 'undefined') return false;
                     if (filter.value === 'all' && filter.key in metadata) return true;
+                    if (filter.key ==='all' && filter.value !=='all') return Object.values(metadata).some(val => String(val) === filter.value);
                     return String(metadata[filter.key]) === filter.value;
                 });
             });
+
+
+//# clicque sur reset -> rien du tout.
+//#filtre ne marche pas quand 'all'
 
             // Maintenant, fileFiltered ne contient que les fichiers valides
             fileFiltered.forEach((file: TFile) => {
@@ -181,20 +194,20 @@ export class PropertiesFilterView extends ItemView {
             });
 };
 
-            const updateAddFilterButtonState = () => {
-                const selectedKey = newSelectElement.value;
-                const selectedValue = newValueSelectElement.value;
+    const updateAddFilterButtonState = () => {
+        const selectedKey = selectElement.value;
+        const selectedValue = valueElement.value;
 
-                if (selectedKey === 'all' && selectedValue === 'all') {
-                    addFilterButton.disabled = true;
-                    addFilterButton.style.backgroundColor = 'gray'; // Couleur désactivée
-                    addFilterButton.style.cursor = 'not-allowed';
-                } else {
-                    addFilterButton.disabled = false;
-                    addFilterButton.style.backgroundColor = ''; // Réinitialiser la couleur
-                    addFilterButton.style.cursor = 'pointer';
-                }
-            };
+        if (selectedKey === 'all' && selectedValue === 'all') {
+            addFilterButton.disabled = true;
+            addFilterButton.style.backgroundColor = 'gray'; // Couleur désactivée
+            addFilterButton.style.cursor = 'not-allowed';
+        } else {
+            addFilterButton.disabled = false;
+            addFilterButton.style.backgroundColor = ''; // Réinitialiser la couleur
+            addFilterButton.style.cursor = 'pointer';
+        }
+    };
 
 
         // Afficher tous les fichiers au début
