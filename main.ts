@@ -14,26 +14,10 @@ export default class PropertiesFilterPlugin extends Plugin {
     }  
     PropertiesFilterPlugin.instance = this;
 
-    // Enregistrer la vue pour le plugin
     this.registerView(
       PropertiesFilterView.VIEW_TYPE_PROPERTIES_FILTER,
       (leaf: WorkspaceLeaf) => new PropertiesFilterView(leaf)
     );
-
-    console.log("Vue enregistrée:", PropertiesFilterView.VIEW_TYPE_PROPERTIES_FILTER);
-
-    // Rafraîchir la vue après la création d'un fichier ou à l'ouverture
-    this.app.workspace.on("file-open", async (file: TFile) => {
-      await this.refreshView();
-    });
-
-// Écouter les modifications de fichier
-    this.app.vault.on("modify", async (file: TFile) => {
-      console.log("Fichier modifié :", file.path);
-
-      // Rafraîchir la vue uniquement si les propriétés sont modifiées
-      await this.refreshView();
-    });
 
     // Ajouter un bouton dans le ribbon
     this.addRibbonIcon('filter', 'Open Properties Filter', async () => {
@@ -41,38 +25,11 @@ export default class PropertiesFilterPlugin extends Plugin {
       const existingLeaf = workspace.getLeavesOfType(PropertiesFilterView.VIEW_TYPE_PROPERTIES_FILTER)[0];
 
       if (!existingLeaf) {
-        // Ouvrir la vue si elle n'est pas déjà ouverte
         await this.activateView();
-      } else {
-        // Si la vue est déjà ouverte, la rafraîchir
-        await this.refreshView();
-      }
-    });
-  }
-
-  async refreshView() {
-    const { workspace } = this.app;
-
-    // Récupérer la feuille existante
-    const existingLeaf = workspace.getLeavesOfType(PropertiesFilterView.VIEW_TYPE_PROPERTIES_FILTER)[0];
-
-    if (existingLeaf) {
-      // Fermer la feuille actuelle en la détachant
-//      workspace.detachLeaf(existingLeaf); // Cette méthode déconnecte la vue de l'espace de travail
-//        this.app.workspace.detachLeavesOfType(PropertiesFilterView.VIEW_TYPE_PROPERTIES_FILTER);
-        existingLeaf.detach();
-    }  
-
-    // Créer et afficher une nouvelle feuille pour la vue
-    const newLeaf = workspace.getLeftLeaf(false)!;
-    await newLeaf.setViewState({
-      type: PropertiesFilterView.VIEW_TYPE_PROPERTIES_FILTER,
-      active: false
-    });
-
-//    workspace.revealLeaf(newLeaf);  // Révéler la nouvelle feuille
-  }
-
+           } 
+        });
+    
+}
   async activateView() {
     const { workspace } = this.app;
 
@@ -82,16 +39,25 @@ export default class PropertiesFilterPlugin extends Plugin {
       leaf = workspace.getLeftLeaf(false)!;
       await leaf.setViewState({
         type: PropertiesFilterView.VIEW_TYPE_PROPERTIES_FILTER,
-        active: false
+        active: true
       });
     }
 
     workspace.revealLeaf(leaf);
   }
 
-  onunload() {
+onunload() {
     console.log("PropertiesFilter plugin unloaded");
+
+    // Trouver la leaf associée à la vue du plugin
+    const leaves = this.app.workspace.getLeavesOfType(PropertiesFilterView.VIEW_TYPE_PROPERTIES_FILTER);
+    for (const leaf of leaves) {
+        leaf.detach(); // Supprime proprement la leaf
+    }
+
+    // Réinitialiser l'instance du plugin
     PropertiesFilterPlugin.instance = null;
-  }
+}
+
 }
 
