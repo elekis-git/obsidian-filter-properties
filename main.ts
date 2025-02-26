@@ -70,7 +70,7 @@ export default class PropertiesFilterPlugin extends Plugin {
       active: false
     });
 
-    workspace.revealLeaf(newLeaf);  // Révéler la nouvelle feuille
+//    workspace.revealLeaf(newLeaf);  // Révéler la nouvelle feuille
   }
 
   async activateView() {
@@ -82,7 +82,7 @@ export default class PropertiesFilterPlugin extends Plugin {
       leaf = workspace.getLeftLeaf(false)!;
       await leaf.setViewState({
         type: PropertiesFilterView.VIEW_TYPE_PROPERTIES_FILTER,
-        active: true
+        active: false
       });
     }
 
