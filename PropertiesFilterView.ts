@@ -29,6 +29,8 @@ export class PropertiesFilterView extends ItemView {
 
 
     const container = this.containerEl;
+    
+
     const windowContainer = container.createDiv({ cls: 'properties-filter-elekis-container' });
 
     // Fenêtre 1 : Propriétés de tous les fichiers
@@ -172,7 +174,7 @@ export class PropertiesFilterView extends ItemView {
                     return String(metadata[filter.key]) === filter.value;
                 });
             });
-
+            fileFiltered.sort((a, b) => a.basename.localeCompare(b.basename)); 
 
 //# clicque sur reset -> rien du tout.
 //#filtre ne marche pas quand 'all'
